@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# vaultbak - Main CLI entrypoint
+
+set -e
+
+# Globals
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CONFIG_FILE="${HOME}/.vaultbak/config.ini"
+DEFAULT_CONFIG="${SCRIPT_DIR}/config/default.ini"
+
+# Source utils
+source "${SCRIPT_DIR}/core/utils.sh"
+
+# Load Config
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+elif [[ -f "$DEFAULT_CONFIG" ]]; then
+    source "$DEFAULT_CONFIG"
+    log_message "INFO" "Loaded default configuration."
+else
+    log_message "WARNING" "No configuration file found."
+fi
+
+# Export config for core scripts
+export SOURCE_DIR BACKUP_DIR MAX_BACKUPS COMPRESSION ENCRYPTION_ENABLED ENCRYPTION_KEY_PATH LOG_FILE
+
+function usage() {
+    echo "Usage: vaultbak {backup|restore|verify|rotate|help} [options]"
+    exit 1
+}
+
+if [[ $# -lt 1 ]]; then
+    usage
+fi
+
+COMMAND="$1"
+shift
+
+# Check Core Scripts
+CORE_BIN="${SCRIPT_DIR}/core"
+
+case "$COMMAND" in
+    backup)
+        log_message "INFO" "Command: backup"
+        "${CORE_BIN}/backup.sh" "$@"
+        ;;
+    restore)
+        log_message "INFO" "Command: restore"
+        "${CORE_BIN}/restore.sh" "$@"
+        ;;
+    verify)
+        log_message "INFO" "Command: verify"
+        "${CORE_BIN}/verify.sh" "$@"
+        ;;
+    rotate)
+        log_message "INFO" "Command: rotate"
+        "${CORE_BIN}/rotate.sh" "$@"
+        ;;
+    help)
+        usage
+        ;;
+    *)
+        log_message "ERROR" "Unknown command: $COMMAND"
+        usage
+        ;;
+esac

@@ -1,0 +1,18 @@
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Config
+# We keep default.ini as template, but ignore user specific configs if they were here (though they go to ~/.vaultbak)
+# Just to be safe if someone copies one here
+*.local.ini
+
+# OS generated
+.DS_Store
+Thumbs.db
+*~
+
+# Test artifacts
+tests/data/
+tests/test_config.ini
+tests/test.log
